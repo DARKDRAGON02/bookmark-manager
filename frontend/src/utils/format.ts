@@ -4,6 +4,12 @@ export function pluralize(count: number, singular: string, plural = `${singular}
   return count === 1 ? singular : plural;
 }
 
+/** ["a"] -> "a", ["a","b"] -> "a and b", ["a","b","c"] -> "a, b and c" */
+export function formatList(items: string[]): string {
+  if (items.length < 2) return items.join("");
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
 export function formatChapter(chapter: number | null): string {
   return chapter === null ? "—" : String(chapter);
 }
@@ -26,8 +32,15 @@ export function timeAgo(iso: string | null, now: number = Date.now()): string {
   return `${Math.round(hours / 24)}d ago`;
 }
 
+/** Crockford base32 ULIDs (WeebCentral series ids) carry no readable text. */
+const ULID_PATTERN = /^[0-9A-HJKMNP-TV-Z]{26}$/i;
+
 /** "solo-leveling-ragnarok-4c8a1f2b" -> "Solo Leveling Ragnarok" */
 export function humanizeSlug(slug: string): string {
+  if (ULID_PATTERN.test(slug)) {
+    return "Untitled series";
+  }
+
   return slug
     .replace(/[-_]?[a-f0-9]{8}$/i, "")
     .split(/[-_]+/)
@@ -39,6 +52,7 @@ export function humanizeSlug(slug: string): string {
 const SITE_NAMES: Array<[match: string, label: string]> = [
   ["asura", "AsuraScan"],
   ["shojo", "KingOfShojo"],
+  ["weeb", "WeebCentral"],
 ];
 
 export function formatSite(site: string): string {
