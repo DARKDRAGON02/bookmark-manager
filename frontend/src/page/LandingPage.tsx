@@ -7,10 +7,10 @@ import FileDropzone from "../components/FileDropzone";
 import Navbar from "../components/Navbar";
 import StepCard from "../components/StepCard";
 import { useBookmarks, useImportBookmarks } from "../hooks/useBookmark";
-import { pluralize } from "../utils/format";
+import { pluralize, formatList } from "../utils/format";
 import { validateBookmarkFile } from "../utils/file";
 
-const SUPPORTED_SOURCES = ["AsuraScan", "KingOfShojo"];
+const SUPPORTED_SOURCES = ["AsuraScan", "KingOfShojo", "WeebCentral"];
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const LandingPage = () => {
       onSuccess: ({ imported, skipped, failedScrapes }) => {
         if (imported === 0) {
           toast.error(
-            `No supported series found. Only ${SUPPORTED_SOURCES.join(" and ")} links are imported.`,
+            `No supported series found. Only ${formatList(SUPPORTED_SOURCES)} links are imported.`,
           );
           return;
         }
