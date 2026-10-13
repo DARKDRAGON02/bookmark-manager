@@ -113,6 +113,7 @@ const LandingPage = () => {
         <p className="mx-auto flex w-full max-w-6xl items-center gap-2 px-4 py-3 font-mono text-[11px] text-zinc-500 sm:px-6">
           <FiLock aria-hidden />
           Your library is tied to your account, so it follows you to any browser.
+          <span className="ml-auto">Powered by Vima Devs</span>
         </p>
       </footer>
     </div>
