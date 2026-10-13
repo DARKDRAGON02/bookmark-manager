@@ -66,6 +66,9 @@ This replaces the previous browser-specific anonymous guest-session model.
 | ----------- | -------------------------------- |
 | AsuraScans  | `asurascans.com/comics/<series>` |
 | KingOfShojo | `kingofshojo.com/manga/<series>` |
+| WeebCentral | `weebcentral.com/series/<id>`    |
+
+WeebCentral series URLs end in a ULID (`01J76XYF5ZDZX41X5S64WQHFXZ`) followed by a human-readable title. The ULID is used as the slug, so renaming a series on the site does not break an existing bookmark.
 
 Links from all other sites are deliberately skipped and reported in the import summary. This avoids saving links that cannot be reliably checked.
 

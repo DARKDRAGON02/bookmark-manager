@@ -36,6 +36,16 @@ npm run lint
 
 Every source should be treated as an independent integration. A successful matcher alone is not enough; the latest-chapter lookup must be reliable, respectful, and tested.
 
+### Currently supported sources
+
+| Source      | URL pattern                      |
+| ----------- | -------------------------------- |
+| AsuraScans  | `asurascans.com/comics/<series>` |
+| KingOfShojo | `kingofshojo.com/manga/<series>` |
+| WeebCentral | `weebcentral.com/series/<id>`    |
+
+WeebCentral was the most recent addition. Its series page only server-renders a window of chapter rows (the newest and oldest) and loads the complete list through an HTMX fragment, so its scraper depends on the newest rows always being present in that window. Chapter-level URLs on WeebCentral and KingOfShojo are not imported; only series URLs are matched.
+
 ### Before writing code
 
 Confirm all of the following:
@@ -50,11 +60,11 @@ Confirm all of the following:
 
 1. Add the domain and slug extractor to `backend/src/bookmark/constants/site-matchers.ts`.
 2. Create a scraper in `backend/src/bookmark/scraper/`.
-3. Register the scraper in `backend/src/bookmark/bookmark.service.ts`.
+3. Register the scraper in `backend/src/bookmark/constants/SCRAPERS.ts`.
 4. Add a conservative per-site concurrency limit.
 5. Use timeouts and handle `429`, `5xx`, and malformed pages gracefully.
 6. Add unit tests for URL parsing and scraper response parsing.
-7. Update the supported-sources list in the frontend and README.
+7. Update the supported-sources list in the frontend (`SUPPORTED_SOURCES` in `frontend/src/page/LandingPage.tsx` and `SITE_NAMES` in `frontend/src/utils/format.ts`) and in the README.
 8. Explain the source, URL pattern, and validation steps in the pull request.
 
 ### Scraper expectations
