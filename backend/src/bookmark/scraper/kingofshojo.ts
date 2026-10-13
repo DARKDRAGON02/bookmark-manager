@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
