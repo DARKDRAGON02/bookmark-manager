@@ -1,0 +1,4 @@
+export const SCRAPE_CACHE_TTL_SECONDS = 10 * 60;
+export const STALE_AFTER_MINUTES = 5;
+export const SCRAPE_CONCURRENCY_PER_SITE = 3;
+export const DB_WRITE_CONCURRENCY = 10;

@@ -1,6 +1,6 @@
-import { ChapterInfo } from './kingofshojo';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { ChapterInfo } from '../type/main.type';
 
 function decodeHtmlEntities(text: string): string {
   return text
@@ -15,25 +15,26 @@ function extractLatestChapterFromIsland(html: string): number | null {
   const islandMatch = html.match(
     /<astro-island[^>]*component-url="\/_astro\/ChapterListReact[^"]*"[^>]*props="([^"]*)"/,
   );
+
   if (!islandMatch) {
     return null;
   }
 
   const propsJson = decodeHtmlEntities(islandMatch[1]);
   const numberMatch = propsJson.match(/"number":\[0,(\d+(?:\.\d+)?)\]/);
+
   if (!numberMatch) {
     return null;
   }
 
   const number = parseFloat(numberMatch[1]);
+
   return Number.isNaN(number) ? null : number;
 }
 
 /**
- * Fallback only — matches a static <a href=".../chapter/N"> if the site
- * ever server-renders the chapter list directly. Currently this will only
- * ever find the "First Chapter" button (chapter 1), so it's a last resort,
- * not the primary path.
+ * Fallback only: matches static chapter links if the site
+ * server-renders them directly.
  */
 function extractLatestChapterFromStaticLinks(
   html: string,
@@ -44,11 +45,18 @@ function extractLatestChapterFromStaticLinks(
 
   $(`a[href*="/comics/${slug}/chapter/"]`).each((_, el) => {
     const href = $(el).attr('href');
-    if (!href) return;
 
-    const numMatch = href.match(/\/chapter\/(\d+(?:\.\d+)?)/);
-    if (numMatch) {
-      chapters.push({ number: parseFloat(numMatch[1]), href });
+    if (!href) {
+      return;
+    }
+
+    const numberMatch = href.match(/\/chapter\/(\d+(?:\.\d+)?)/);
+
+    if (numberMatch) {
+      chapters.push({
+        number: parseFloat(numberMatch[1]),
+        href,
+      });
     }
   });
 
@@ -56,7 +64,9 @@ function extractLatestChapterFromStaticLinks(
     return null;
   }
 
-  return chapters.reduce((max, ch) => (ch.number > max.number ? ch : max));
+  return chapters.reduce((latest, chapter) =>
+    chapter.number > latest.number ? chapter : latest,
+  );
 }
 
 export const scrapeAsuraScans = async (
@@ -67,6 +77,7 @@ export const scrapeAsuraScans = async (
   }
 
   let html: string;
+
   try {
     const response = await axios.get<string>(url, {
       timeout: 10_000,
@@ -74,6 +85,7 @@ export const scrapeAsuraScans = async (
       maxContentLength: 5 * 1024 * 1024,
       responseType: 'text',
     });
+
     html = response.data;
   } catch {
     return null;
@@ -81,27 +93,34 @@ export const scrapeAsuraScans = async (
 
   const slugMatch = url.match(/\/comics\/([^/?]+)/);
   const slug = slugMatch?.[1];
+
   if (!slug) {
     return null;
   }
 
   const $ = cheerio.load(html);
-  const image = $('meta[property="og:image"]').attr('content');
+
+  // AsuraScans series title.
+  const title = $('h1').first().text().trim() || undefined;
+
+  const image = $('meta[property="og:image"]').attr('content') || undefined;
 
   const islandNumber = extractLatestChapterFromIsland(html);
+
   if (islandNumber !== null) {
     return {
       number: islandNumber,
-      // The island's props don't give us a per-chapter URL cheaply here;
-      // point at the series page rather than fabricate a wrong link.
+      // The island props don't provide a reliable chapter URL here.
       url,
       date: '',
       image,
+      title,
     };
   }
 
-  // Fallback path — see extractLatestChapterFromStaticLinks's caveat above.
+  // Fallback for server-rendered static chapter links.
   const fallback = extractLatestChapterFromStaticLinks(html, slug);
+
   if (!fallback) {
     return null;
   }
@@ -111,5 +130,6 @@ export const scrapeAsuraScans = async (
     url: new URL(fallback.href, url).href,
     date: '',
     image,
+    title,
   };
 };
