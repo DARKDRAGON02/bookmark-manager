@@ -1,12 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-
-export interface ChapterInfo {
-  number: number;
-  url: string | undefined;
-  date: string;
-  image?: string;
-}
+import { ChapterInfo } from '../type/main.type';
 
 export const scrapeKingOfShojo = async (
   url: string,
@@ -16,6 +10,7 @@ export const scrapeKingOfShojo = async (
   }
 
   let html: string;
+
   try {
     const response = await axios.get<string>(url, {
       timeout: 10_000,
@@ -23,12 +18,19 @@ export const scrapeKingOfShojo = async (
       maxContentLength: 5 * 1024 * 1024,
       responseType: 'text',
     });
+
     html = response.data;
   } catch {
     return null;
   }
 
   const $ = cheerio.load(html);
+
+  // Series title, based on the site's h1.entry-title element.
+  const title =
+    $('h1.entry-title').first().text().trim() ||
+    $('h1').first().text().trim() ||
+    undefined;
 
   const chapters = $('#chapterlist li')
     .map((_, el) => ({
@@ -37,7 +39,7 @@ export const scrapeKingOfShojo = async (
       date: $(el).find('.chapterdate').text().trim(),
     }))
     .get()
-    .filter((ch) => !Number.isNaN(ch.number));
+    .filter((chapter) => Number.isFinite(chapter.number));
 
   if (chapters.length === 0) {
     return null;
@@ -47,12 +49,13 @@ export const scrapeKingOfShojo = async (
     chapter.number > latest.number ? chapter : latest,
   );
 
-  // Cover image lives in the .thumb block (schema.org ImageObject),
-  // NOT .bigbanner — that's the blurred hero background, a different image.
-  const image = $('.seriestucontl .thumb[itemprop="image"] img').attr('src');
+  // The cover is in the thumbnail block, not the blurred hero background.
+  const image =
+    $('.seriestucontl .thumb[itemprop="image"] img').attr('src') || undefined;
 
   return {
     ...latestChapter,
     image,
+    title,
   };
 };
