@@ -69,6 +69,8 @@ export class BookmarksService {
       number: scraped.number,
       image: scraped.image,
       title: scraped.title,
+      // Undefined for sources that do not expose lock status.
+      isChapterLocked: scraped.isChapterLocked,
     };
 
     await this.redis
@@ -131,6 +133,7 @@ export class BookmarksService {
         title: true,
         lastChapter: true,
         comicProfilePic: true,
+        newChapterIsLocked: true,
       },
     });
 
@@ -163,6 +166,8 @@ export class BookmarksService {
           lastChapter,
           comicProfilePic: result?.image ?? existingImage,
           lastCheckedAt: result ? new Date() : null,
+          // undefined when the source does not report lock status.
+          newChapterIsLocked: result?.isChapterLocked,
           scrapeFailed: hasScraper && result === null,
         };
       }),
@@ -192,6 +197,10 @@ export class BookmarksService {
               ...(bookmark.comicProfilePic
                 ? { comicProfilePic: bookmark.comicProfilePic }
                 : {}),
+              // Only overwrite when the source reported a lock status.
+              ...(bookmark.newChapterIsLocked !== undefined
+                ? { newChapterIsLocked: bookmark.newChapterIsLocked }
+                : {}),
             },
             create: {
               firebaseUid,
@@ -202,6 +211,7 @@ export class BookmarksService {
               lastChapter: bookmark.lastChapter,
               lastCheckedAt: bookmark.lastCheckedAt,
               comicProfilePic: bookmark.comicProfilePic,
+              newChapterIsLocked: bookmark.newChapterIsLocked ?? false,
             },
           }),
         ),
@@ -237,6 +247,7 @@ export class BookmarksService {
         id: bookmark.id,
         title: bookmark.title,
         lastChapter: bookmark.lastChapter,
+        newChapterIsLocked: bookmark.newChapterIsLocked,
         hasNewChapter: false,
         checked: false,
       };
@@ -260,6 +271,9 @@ export class BookmarksService {
         lastCheckedAt: new Date(),
         comicProfilePic: result.image ?? bookmark.comicProfilePic,
         ...(result.title?.trim() ? { title: result.title.trim() } : {}),
+        ...(typeof result.isChapterLocked === 'boolean'
+          ? { newChapterIsLocked: result.isChapterLocked }
+          : {}),
       },
     });
 
@@ -267,6 +281,7 @@ export class BookmarksService {
       id: updated.id,
       title: updated.title,
       lastChapter: updated.lastChapter,
+      newChapterIsLocked: updated.newChapterIsLocked,
       hasNewChapter,
       checked: true,
     };
@@ -286,6 +301,7 @@ export class BookmarksService {
         lastChapter: true,
         lastCheckedAt: true,
         comicProfilePic: true,
+        newChapterIsLocked: true,
       },
     });
 
@@ -305,6 +321,7 @@ export class BookmarksService {
             id: bookmark.id,
             title: bookmark.title,
             lastChapter: bookmark.lastChapter,
+            newChapterIsLocked: bookmark.newChapterIsLocked,
             hasNewChapter: false,
             checked: false,
             skippedReason: 'recently checked' as const,
@@ -319,6 +336,7 @@ export class BookmarksService {
             id: bookmark.id,
             title: bookmark.title,
             lastChapter: bookmark.lastChapter,
+            newChapterIsLocked: bookmark.newChapterIsLocked,
             hasNewChapter: false,
             checked: false,
           };
@@ -342,6 +360,9 @@ export class BookmarksService {
               lastCheckedAt: new Date(),
               comicProfilePic: result.image ?? bookmark.comicProfilePic,
               ...(result.title?.trim() ? { title: result.title.trim() } : {}),
+              ...(typeof result.isChapterLocked === 'boolean'
+                ? { newChapterIsLocked: result.isChapterLocked }
+                : {}),
             },
           }),
         );
@@ -350,6 +371,7 @@ export class BookmarksService {
           id: updated.id,
           title: updated.title,
           lastChapter: updated.lastChapter,
+          newChapterIsLocked: updated.newChapterIsLocked,
           hasNewChapter,
           checked: true,
         };
@@ -390,6 +412,7 @@ export class BookmarksService {
         comicProfilePic: true,
         lastChapter: true,
         lastCheckedAt: true,
+        newChapterIsLocked: true,
       },
     });
   }

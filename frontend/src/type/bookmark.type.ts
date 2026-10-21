@@ -9,6 +9,8 @@ export const bookmarkSchema = z.object({
   comicProfilePic: z.string().nullable(),
   lastChapter: z.number().nullable(),
   lastCheckedAt: z.iso.datetime().nullable(),
+  /** Latest chapter needs payment or early access on the source. */
+  newChapterIsLocked: z.boolean().default(false),
 });
 export type Bookmark = z.infer<typeof bookmarkSchema>;
 
