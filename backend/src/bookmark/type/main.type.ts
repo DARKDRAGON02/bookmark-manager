@@ -4,6 +4,12 @@ export type ScrapedChapter = {
   number: number;
   image?: string;
   title?: string;
+  /**
+   * True when the latest chapter needs payment or early-access unlock.
+   * Undefined means the source does not expose lock status, which is not
+   * the same as unlocked.
+   */
+  isChapterLocked?: boolean;
 };
 
 export type Scraper = (url: string) => Promise<ScrapedChapter | null>;
@@ -16,4 +22,10 @@ export interface ChapterInfo {
   date: string;
   image?: string;
   title?: string;
+  /**
+   * True when the latest chapter needs payment or early-access unlock.
+   * Undefined means the source does not expose lock status, which is not
+   * the same as unlocked.
+   */
+  isChapterLocked?: boolean;
 }

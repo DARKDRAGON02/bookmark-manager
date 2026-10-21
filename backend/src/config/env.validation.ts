@@ -30,6 +30,14 @@ export const envSchema = z.object({
     .string()
     .min(1, 'FIREBASE_PRIVATE_KEY is required')
     .transform((value) => value.replace(/\\n/g, '\n')),
+
+  /**
+   * Cloudflare clearance cookie for templetoons.com. The site sits behind a
+   * bot challenge, so requests without it get the challenge page instead of
+   * any chapter data. Expires quickly and is tied to the issuing browser's
+   * IP and header fingerprint.
+   */
+  TEMPLETOONS_COOKIE: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiClock, FiExternalLink, FiRefreshCw } from "react-icons/fi";
+import { FiAlertTriangle, FiClock, FiExternalLink, FiLock, FiRefreshCw } from "react-icons/fi";
 import type { Bookmark } from "../type/bookmark.type";
 import type { NewChapter } from "../type/library.type";
 import { bookmarkTitle, type BookmarkStatus } from "../utils/bookmarks";
@@ -32,8 +32,9 @@ const BookmarkCard = ({ bookmark, status, update, onCheck, onOpen }: BookmarkCar
   const isNew = status === "new";
   const isChecking = status === "checking";
   const hasIssue = status === "issue";
+  const isLocked = bookmark.newChapterIsLocked;
 
-  const openLabel = isNew ? `Read on ${site}` : "Continue reading";
+  const openLabel = isNew ? `Read on ${site}` : isLocked ? `Open on ${site}` : "Continue reading";
 
   return (
     <article
@@ -43,12 +44,17 @@ const BookmarkCard = ({ bookmark, status, update, onCheck, onOpen }: BookmarkCar
       <div className="relative aspect-[16/10] overflow-hidden bg-ink-800">
         <CoverImage key={bookmark.comicProfilePic ?? "none"} src={safeHttpUrl(bookmark.comicProfilePic)} className="h-full w-full" />
 
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
           {isNew && <Badge tone="success">NEW Ch. {formatChapter(update?.to ?? bookmark.lastChapter)}</Badge>}
           {isChecking && <Badge tone="info">Checking…</Badge>}
           {hasIssue && (
             <Badge tone="danger" icon={<FiAlertTriangle aria-hidden />}>
               Check failed
+            </Badge>
+          )}
+          {isLocked && (
+            <Badge tone="warning" icon={<FiLock aria-hidden />}>
+              Locked
             </Badge>
           )}
         </div>

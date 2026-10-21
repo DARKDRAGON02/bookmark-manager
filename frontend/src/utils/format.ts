@@ -53,6 +53,7 @@ const SITE_NAMES: Array<[match: string, label: string]> = [
   ["asura", "AsuraScan"],
   ["shojo", "KingOfShojo"],
   ["weeb", "WeebCentral"],
+  ["temple", "TempleToons"],
 ];
 
 export function formatSite(site: string): string {
