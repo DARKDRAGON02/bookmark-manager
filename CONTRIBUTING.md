@@ -44,10 +44,13 @@ Every source should be treated as an independent integration. A successful match
 | KingOfShojo | `kingofshojo.com/manga/<series>` |
 | WeebCentral | `weebcentral.com/series/<id>`    |
 | TempleToons | `templetoons.com/comic/<series>` |
+| LustToon    | `lustoon.com/comic/<series>`     |
 
 WeebCentral's series page only server-renders a window of chapter rows (the newest and oldest) and loads the complete list through an HTMX fragment, so its scraper depends on the newest rows always being present in that window. Chapter-level URLs on WeebCentral and KingOfShojo are not imported; only series URLs are matched.
 
-TempleToons was the most recent addition, and it is the only source behind a bot check. A generic request receives a Cloudflare challenge page instead of the comic, so its scraper sends a browser-consistent header set (client hints, `sec-fetch-*`, `priority`) to get the real HTML. A `cf_clearance` value can be supplied through `TEMPLETOONS_COOKIE`, but it expires within tens of minutes and is bound to the issuing IP and header fingerprint, so treat it as a temporary fallback rather than normal configuration. The site marks paid chapters with a "Premium" badge; a chapter link without that badge is reported as unlocked, which lets a stored lock clear once early access ends.
+TempleToons is the only source behind a bot check. A generic request receives a Cloudflare challenge page instead of the comic, so its scraper sends a browser-consistent header set (client hints, `sec-fetch-*`, `priority`) to get the real HTML. A `cf_clearance` value can be supplied through `TEMPLETOONS_COOKIE`, but it expires within tens of minutes and is bound to the issuing IP and header fingerprint, so treat it as a temporary fallback rather than normal configuration. The site marks paid chapters with a "Premium" badge; a chapter link without that badge is reported as unlocked, which lets a stored lock clear once early access ends.
+
+LustToon was the most recent addition. It serves its series pages without a challenge, so a plain request is enough, and it has no per-chapter lock badge. Its scraper therefore leaves `isChapterLocked` undefined, which means the Locked badge never appears for its bookmarks.
 
 ### Before writing code
 
