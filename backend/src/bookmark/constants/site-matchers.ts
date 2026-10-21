@@ -19,4 +19,11 @@ export const SITE_MATCHERS: Record<
     );
     return match?.[1];
   },
+
+  'lustoon.com': (url) => {
+    const match = url.match(
+      /^https:\/\/(?:www\.)?lustoon\.com\/comic\/([^/?#]+)/i,
+    );
+    return match?.[1];
+  },
 };

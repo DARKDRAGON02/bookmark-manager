@@ -10,7 +10,7 @@ import { useBookmarks, useImportBookmarks } from "../hooks/useBookmark";
 import { pluralize, formatList } from "../utils/format";
 import { validateBookmarkFile } from "../utils/file";
 
-const SUPPORTED_SOURCES = ["AsuraScan", "KingOfShojo", "WeebCentral", "TempleToons"];
+const SUPPORTED_SOURCES = ["AsuraScan", "KingOfShojo", "WeebCentral", "TempleToons", "LustToon"];
 
 const LandingPage = () => {
   const navigate = useNavigate();

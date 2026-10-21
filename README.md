@@ -68,10 +68,13 @@ This replaces the previous browser-specific anonymous guest-session model.
 | KingOfShojo | `kingofshojo.com/manga/<series>` |
 | WeebCentral | `weebcentral.com/series/<id>`    |
 | TempleToons | `templetoons.com/comic/<series>` |
+| LustToon    | `lustoon.com/comic/<series>`     |
 
 WeebCentral series URLs end in a ULID (`01J76XYF5ZDZX41X5S64WQHFXZ`) followed by a human-readable title. The ULID is used as the slug, so renaming a series on the site does not break an existing bookmark.
 
 TempleToons serves comic pages behind a Cloudflare bot check. Its scraper sends a browser-consistent header set to receive the page; a generic request only gets the challenge shell, which contains no chapter links. If the check ever tightens, `TEMPLETOONS_COOKIE` can carry a `cf_clearance` value from a browser session, but it is not normally required.
+
+LustToon needs no special handling: its series pages are served without a challenge, and it marks no chapter as locked, so its bookmarks never show the Locked badge.
 
 Links from all other sites are deliberately skipped and reported in the import summary. This avoids saving links that cannot be reliably checked.
 
