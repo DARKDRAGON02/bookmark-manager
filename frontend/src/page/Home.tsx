@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiAlertCircle, FiUploadCloud } from "react-icons/fi";
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { getErrorMessage } from "../api/apiInstance.api";
 import BookmarkCardSkeleton from "../components/BookmarkCardSkeleton";
@@ -13,6 +14,7 @@ import { useLibraryChecks } from "../hooks/useLibraryChecks";
 import type { Bookmark } from "../type/bookmark.type";
 import { bookmarkTitle, latestCheck, type LibraryFilter } from "../utils/bookmarks";
 import { buttonStyles } from "../utils/buttonStyles";
+import { pluralize } from "../utils/format";
 import Library from "./Library";
 
 const NO_BOOKMARKS: Bookmark[] = [];
@@ -22,7 +24,7 @@ const Home = () => {
   const bookmarks = bookmarksQuery.data ?? NO_BOOKMARKS;
 
   const checks = useLibraryChecks(bookmarks);
-  const { checkAll, updates, lastRun } = checks;
+  const { checkAll, markAllSeen, updates, lastRun } = checks;
 
   const [filter, setFilter] = useState<LibraryFilter>("all");
   const [dismissedAt, setDismissedAt] = useState(0);
@@ -53,6 +55,17 @@ const Home = () => {
 
   const retry = () => void bookmarksQuery.refetch();
 
+  /** Clears every "new" badge for this session and hides the banner. */
+  const markAllRead = () => {
+    if (releases.length === 0) return;
+
+    const count = releases.length;
+    markAllSeen();
+    // A future batch must surface even if the banner was dismissed earlier.
+    setDismissedAt(0);
+    toast.success(`${count} ${pluralize(count, "chapter")} marked as read.`);
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar seriesCount={bookmarks.length} newCount={releases.length} />
@@ -62,6 +75,7 @@ const Home = () => {
           <NewReleasesBanner
             items={releases}
             onView={() => setFilter("new")}
+            onMarkAllRead={markAllRead}
             onDismiss={() => setDismissedAt(releases.length)}
           />
         )}

@@ -105,6 +105,11 @@ export function useLibraryChecks(bookmarks: Bookmark[]) {
     });
   }, []);
 
+  /** Clears every new-chapter marker found in this session. */
+  const markAllSeen = useCallback(() => {
+    setUpdates((current) => (current.size === 0 ? current : new Map()));
+  }, []);
+
   const statusOf = useCallback(
     (id: string): BookmarkStatus => {
       if (isCheckingAll || checkingIds.has(id)) return "checking";
@@ -115,7 +120,16 @@ export function useLibraryChecks(bookmarks: Bookmark[]) {
     [isCheckingAll, checkingIds, issueIds, updates],
   );
 
-  return { updates, lastRun, isCheckingAll, statusOf, checkOne, checkAll, markSeen };
+  return {
+    updates,
+    lastRun,
+    isCheckingAll,
+    statusOf,
+    checkOne,
+    checkAll,
+    markSeen,
+    markAllSeen,
+  };
 }
 
 export type LibraryChecks = ReturnType<typeof useLibraryChecks>;
